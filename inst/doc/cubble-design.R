@@ -10,7 +10,7 @@ knitr::opts_chunk$set(
 library(cubble)
 library(dplyr)
 
-## ----echo = FALSE-------------------------------------------------------------
+## ----echo = FALSE, fig.align='center'-----------------------------------------
 knitr::include_graphics("cluster-diagram/cubble-design.png")
 
 ## -----------------------------------------------------------------------------
@@ -35,6 +35,9 @@ climate_small %>%
 long <- nested %>%  face_temporal()
 long
 attributes(long)
+
+## ----echo = FALSE, fig.align='center'-----------------------------------------
+knitr::include_graphics("cluster-diagram/cubble-operations.png")
 
 ## -----------------------------------------------------------------------------
 key_vars(long)

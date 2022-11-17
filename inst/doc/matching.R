@@ -14,9 +14,9 @@ library(ggplot2)
 nsw_map <- ozmaps::abs_ste %>%  
   filter(NAME == "New South Wales") 
 
-nsw <- prcp_aus %>%    
+nsw <- climate_aus %>%    
   # subset for New South Wales stations
-  filter(between(stringr::str_sub(id, 7, 8), 46, 75)) %>% 
+  filter(between(as.numeric(stringr::str_sub(id, 7, 8)), 46, 75)) %>% 
   mutate(automated = stringr::str_detect(name, "aws")) %>%  
   face_temporal(ts) %>% 
   filter(lubridate::month(date) == 1,
@@ -75,9 +75,9 @@ ts %>%
 ## ----echo = FALSE-------------------------------------------------------------
 river <- river %>%  mutate(type = "river")
 
-vic <- prcp_aus %>%  
+vic <- climate_aus %>%  
   # subset for Victoria stations
-  filter(between(stringr::str_sub(id, 7, 8), 76, 90)) %>%  
+  filter(between(as.numeric(stringr::str_sub(id, 7, 8)), 76, 90)) %>%  
   face_temporal() %>%  
   filter(lubridate::year(date) == 2020) %>%  
   face_spatial() %>%  

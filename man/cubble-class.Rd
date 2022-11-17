@@ -5,6 +5,7 @@
 \alias{as_cubble.list}
 \alias{as_cubble.tbl_df}
 \alias{as_cubble.rowwise_df}
+\alias{print.cubble_df}
 \alias{tbl_sum.cubble_df}
 \alias{is_cubble}
 \alias{cubble}
@@ -12,11 +13,21 @@
 \usage{
 as_cubble(data, key, index, coords, ...)
 
-\method{as_cubble}{list}(data, key, index, coords, output = "all", ...)
+\method{as_cubble}{list}(data, key, index, coords, by = NULL, output = "auto-match", ...)
 
 \method{as_cubble}{tbl_df}(data, key, index, coords, ...)
 
 \method{as_cubble}{rowwise_df}(data, key, index, coords, ...)
+
+\method{print}{cubble_df}(
+  x,
+  width = NULL,
+  ...,
+  n_extra = NULL,
+  n = NULL,
+  max_extra_cols = NULL,
+  max_footer_lines = NULL
+)
 
 \method{tbl_sum}{cubble_df}(data)
 
@@ -35,9 +46,15 @@ cubble(..., key, index, coords)
 
 \item{...}{a list object to create new cubble}
 
+\item{by}{only used in \code{as_cubble.list()} to specify the linking key between spatial and temporal data}
+
 \item{output}{either "all" or "unmatch", whether to output all or a list of unmatched summary}
+
+\item{x, width, n_extra, n, max_extra_cols, max_footer_lines}{see pillar tbl-format.R}
 }
 \value{
+a cubble object
+
 a cubble object
 
 a cubble object

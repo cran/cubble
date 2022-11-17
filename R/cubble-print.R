@@ -1,3 +1,18 @@
+#' @rdname cubble-class
+#' @param x,width,n_extra,n,max_extra_cols,max_footer_lines see pillar tbl-format.R
+#' @importFrom  tibble tbl_sum
+#' @return a cubble object
+#' @export
+print.cubble_df <- function(x, width = NULL, ...,
+                            n_extra = NULL,
+                            n = NULL, max_extra_cols = NULL, max_footer_lines = NULL){
+  # ref: https://github.com/r-lib/pillar/blob/main/R/tbl-format.R
+  writeLines(format(
+    x,
+    width = width, ...,
+    n = n, max_extra_cols = max_extra_cols, max_footer_lines = max_footer_lines
+  ))
+}
 
 #' @rdname cubble-class
 #' @importFrom  tibble tbl_sum
@@ -37,8 +52,10 @@ tbl_sum.cubble_df <- function(data) {
     msg <- glue::glue("{index}, {key} [{key_n}]: long form")
   }
 
-  if ("tbl_ts" %in% class(data)){
+  if (inherits(data, "tbl_ts")){
     msg <- glue::glue("{msg} [tsibble]")
+  } else if (inherits(data, "sf")){
+    msg <- glue::glue("{msg} [sf]")
   }
 
   if (is_nested(data)) {

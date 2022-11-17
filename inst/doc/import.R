@@ -69,3 +69,14 @@ dt <- as_cubble(raw, vars = c("q", "z"),
                 lat_rnage = seq(-90, -5, 1))
 dt
 
+## -----------------------------------------------------------------------------
+# create a toy stars object
+m <- array(1:60, dim = c(x= 5, y = 4, t = 3))
+time = 1:3
+library(units)
+units(time) = as_units("days since 2015-01-01")
+m_dim <- stars::st_dimensions(x =  seq(146, 162, 4), y = seq(-44, -41, 1), t = time)
+st <- stars::st_as_stars(list(m = m, m2 = m), dimensions = m_dim)
+st
+as_cubble(st)
+

@@ -20,6 +20,10 @@ cubble <- function(..., key, index, coords) {
 
 new_cubble <- function(data, key, index, coords, spatial, form, tsibble_attr = NULL){
 
+  data <- arrange(data, !!sym(key[1]))
+
+  # take ordered as TRUE, for now
+  attr(index, "ordered") <- TRUE
   if (form == "nested" & ".val" %in% names(data)){
     group_dt <- data |> tidyr::unnest(.data$.val)
   } else{
@@ -61,12 +65,12 @@ new_cubble <- function(data, key, index, coords, spatial, form, tsibble_attr = N
   }
 
   #tsibble_attr <- NULL
-  if ("tbl_ts" %in% class(data)){
+  if (inherits(data, "tbl_ts")){
     attr$class <- c(attr$class, "tbl_ts")
     attr <- c(attr, tsibble_attr)
   }
 
-  if ("sf" %in% class(data)){
+  if (inherits(data, "sf")){
     sf_attr <- attributes(data)
     attr$class <- c(attr$class, "sf")
     attr <- c(attr, sf_column = list(sf_attr$sf_column), agr = list(sf_attr$agr))

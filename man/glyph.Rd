@@ -16,8 +16,8 @@ geom_glyph(
   x_minor = NULL,
   y_major = NULL,
   y_minor = NULL,
-  x_scale = "identity",
-  y_scale = "identity",
+  x_scale = identity,
+  y_scale = identity,
   polar = FALSE,
   width = ggplot2::rel(2.1),
   height = ggplot2::rel(1.8),
@@ -61,10 +61,10 @@ geom_glyph_box(
 )
 }
 \arguments{
-\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}} or
-\code{\link[ggplot2:aes_]{aes_()}}. If specified and \code{inherit.aes = TRUE} (the
-default), it is combined with the default mapping at the top level of the
-plot. You must supply \code{mapping} if there is no plot mapping.}
+\item{mapping}{Set of aesthetic mappings created by \code{\link[ggplot2:aes]{aes()}}. If specified and
+\code{inherit.aes = TRUE} (the default), it is combined with the default mapping
+at the top level of the plot. You must supply \code{mapping} if there is no plot
+mapping.}
 
 \item{data}{The data to be displayed in this layer. There are three
 options:
@@ -82,10 +82,14 @@ will be used as the layer data. A \code{function} can be created
 from a \code{formula} (e.g. \code{~ head(.x, 10)}).}
 
 \item{stat}{The statistical transformation to use on the data for this
-layer, as a string.}
+layer, either as a \code{ggproto} \code{Geom} subclass or as a string naming the
+stat stripped of the \code{stat_} prefix (e.g. \code{"count"} rather than
+\code{"stat_count"})}
 
-\item{position}{Position adjustment, either as a string, or the result of
-a call to a position adjustment function.}
+\item{position}{Position adjustment, either as a string naming the adjustment
+(e.g. \code{"jitter"} to use \code{position_jitter}), or the result of a call to a
+position adjustment function. Use the latter if you need to change the
+settings of the adjustment.}
 
 \item{...}{Other arguments passed on to \code{\link[ggplot2:layer]{layer()}}. These are
 often aesthetics, used to set an aesthetic to a fixed value, like
@@ -97,7 +101,7 @@ string) for the major and minor x and y axes. Together, each unique
 combination of \code{x_major} and \code{y_major} specifies a grid cell.}
 
 \item{y_scale, x_scale}{The scaling function to be applied to each set of
-minor values within a grid cell.  Defaults to \code{\link{identity}} so
+minor values within a grid cell. Defaults to \code{\link{identity}} so
 that no scaling is performed.}
 
 \item{polar}{A logical of length 1, specifying whether the glyphs should
@@ -129,37 +133,42 @@ a ggplot object
 Create glyph map with ggplot2
 }
 \examples{
-\dontrun{
+print_p <- GGally::print_if_interactive
+
 library(ggplot2)
 # basic glyph map with reference line and box---------------
-ggplot(data = GGally::nasa,
+p <- ggplot(data = GGally::nasa,
        aes(x_major = long, x_minor = day,
            y_major = lat, y_minor = surftemp)) +
   geom_glyph_box() +
   geom_glyph_line() +
   geom_glyph() +
   theme_bw()
+print_p(p)
 
 # rescale on each individual glyph ---------------
-ggplot(data = GGally::nasa,
+p <- ggplot(data = GGally::nasa,
        aes(x_major = long, x_minor = day,
            y_major = lat, y_minor = surftemp)) +
   geom_glyph(global_rescale = FALSE)
-
-# with polar coordinate ---------------
-ggplot() +
-  geom_glyph(data = GGally::nasa,
-             aes(x_major = long, x_minor = day,
-                 y_major = lat, y_minor = surftemp), polar = TRUE) +
-   theme_bw()
+print_p(p)
 
 # adjust width and height with relative & absolute value ---------------
-ggplot() +
+p <- ggplot() +
   geom_glyph(data = GGally::nasa,
              aes(x_major = long, x_minor = day,
                  y_major = lat, y_minor = surftemp),
                  width = rel(0.8), height = 1) +
    theme_bw()
-}
+print_p(p)
 
+# apply a re-scaling on Y and use polar coordinate
+p <-
+  GGally::nasa \%>\%
+  ggplot(aes(x_major = long, x_minor = day,
+             y_major = lat, y_minor = ozone)) +
+    geom_glyph_box(fill=NA) +
+    geom_glyph_line() +
+    geom_glyph(y_scale = GGally::range01, polar = TRUE)
+print_p(p)
 }

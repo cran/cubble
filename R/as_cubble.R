@@ -1,3 +1,4 @@
+#' @param by only used in `as_cubble.list()` to specify the linking key between spatial and temporal data
 #' @rdname cubble-class
 #' @importFrom tidyr unchop
 #' @importFrom tsibble key_vars index
@@ -40,94 +41,113 @@ as_cubble <- function(data, key, index, coords, ...) {
 
 #' @rdname cubble-class
 #' @export
-as_cubble.list <- function(data, key, index, coords,
-                           output = "all", ...){
+as_cubble.list <- function(data, key, index, coords, by = NULL,
+                           output = "auto-match", ...){
   key <- enquo(key)
   index <- enquo(index)
   coords <- enquo(coords)
 
   test_missing(quo = key, var = "key")
+  key_nm <- as_name(key)
   test_missing(quo = index, var = "index")
-  #test_missing(quo = coords, var = "coords")
+  # parse coords from a quosure to a string vector
+  coords <- as.list(quo_get_expr(coords))[-1]
+  coords <- unlist(map(coords, as_string))
 
-  if (!output %in% c("all", "unmatch")){
-    cli::cli_abort('Please choose one of the two outputs: "all" and "unmatch"')
+  if (!output %in% c("unmatch", "auto-match")){
+    cli::cli_abort('Please choose one of the two outputs: "unmatch" and "auto-match"')
   }
 
   if (length(data) > 2){
-    cli::cli_abort("Currently cubble can only take two element for the list input.")
+    cli::cli_abort("Currently cubble can only take two elements for the list input.")
   }
-  # now specific list(spatial = ..., temporal = ...)
+
+  # find the common "key" column between spatial and temporal
+  # if no shared, parse the `by` argument
   spatial <- data$spatial
   temporal <- data$temporal
+  shared <- do.call("intersect", map(data, colnames) %>% setNames(c("x", "y")))
 
-
-  var_names <- map(data, colnames) %>%  unlist()
-  common <- var_names %>%  duplicated()
-  shared <- unname(var_names[common])
+  # if the `by` argument is used,
+  # align the joined column in spatial and temporal to the name in spatial
+  # correct the key to the name in spatial, if name in temporal is used
+  if (!is_null(by)){
+    if (by %in% names(temporal) && names(by) %in% names(spatial)){
+      # rename the join column to have the same name
+      names(temporal)[names(temporal) == by] <- names(by)
+    }
+    if (key_nm == by) key_mn <- names(by)
+    shared <- names(by)
+  }
 
   if (length(shared) == 0){
-    cli::cli_abort("Inputs data in the list need to have at least one shared column.")
+    cli::cli_abort(
+      "Input data need to have either common column or the {.code by} argument specified.")
   }
 
-  spatial_key_lvl <- spatial[[as_name(key)]]
-  temporal_key_lvl <- temporal[[as_name(key)]]
-  only_spatial <- setdiff(spatial_key_lvl, temporal_key_lvl)
-  only_temporal <- setdiff(temporal_key_lvl, spatial_key_lvl)
-  unmatch_t <- length(only_temporal) != 0
-  unmatch_s <- length(only_spatial) != 0
-
-  if (output == "all"){
-    if (unmatch_t){
-      cli::cli_alert_warning("Some sites in the temporal table don't have corresponding spatial information")
-    }
-
-    if (unmatch_s){
-      cli::cli_alert_warning("Some sites in the spatial table don't have corresponding temporal information")
-    }
-
-    if (unmatch_s | unmatch_t)
-    cli::cli_alert_warning('Use argument {.code output = "unmatch"} to check on the unmatched key')
+  if (!key_nm %in% shared){
+    cli::cli_abort(
+      "Please make sure key is the common column of spatial and temporal data.
+      In case the {.code by} argument is used, {.field key} should be either side of the {.code by} argument")
+    # shared, key_nm and by should point to the same variable name now
+    # use key_nm from now on
   }
 
-  if (output == "unmatch" && (unmatch_t| unmatch_s)){
-    temporal <- temporal %>%
-      dplyr::filter({{key}} %in% only_temporal) %>%
-      dplyr::pull({{key}}) %>%
-      unique()
 
-    spatial <- spatial %>%
-      dplyr::filter({{key}} %in% only_spatial) %>%
-      dplyr::pull({{key}}) %>%
-      unique()
+  matched_tbl <-  tibble::tibble(
+    spatial = intersect(unique(temporal[[key_nm]]), spatial[[key_nm]])
+    ) %>%
+    mutate(temporal = spatial)
+  if (nrow(matched_tbl) == 0) {matched_tbl <- tibble::tibble()}
 
-    t <- gsub("\\s\\(.+\\)", "", temporal)
-    s <- gsub("\\s\\(.+\\)", "", spatial)
-    t_idx <- grep(paste0(s, collapse = "|"), t)
-    s_idx <- grep(paste0(t, collapse = "|"), s)
+  # find whether there are unmatched spatial and temporal key level
+  slvl <- spatial[[key_nm]]
+  tlvl <- temporal[[key_nm]]
+  only_spatial <- setdiff(slvl, tlvl)
+  only_temporal <- setdiff(tlvl, slvl)
+  has_unmatch <- length(only_temporal) != 0 | length(only_spatial) != 0
 
-    if (length(t_idx) == 0 | length(s_idx) == 0){
-      correction <- tibble::tibble()
-      others <- list(temporal = temporal, spatial = spatial)
-    } else{
-      correction <- tibble::tibble(
-        spatial = sort(spatial[s_idx]),
-        temporal = sort(temporal[t_idx]))
+  if (has_unmatch){
+    # construct the unmatching summary
+    matching_res <- cubble_automatch(
+      spatial = spatial, temporal = temporal,
+      key_nm = key_nm, matched_tbl = matched_tbl,
+      only_spatial = only_spatial, only_temporal = only_temporal
+      )
 
-      others <- list(temporal = temporal[-t_idx],
-                     spatial = spatial[-s_idx])
+    # return early with the unmatch summary
+    if (output == "unmatch") return(matching_res)
+
+    # inform users about the unmatch
+    others <- matching_res$others
+    has_t_unmatched <- length(others$temporal) != 0
+    has_s_unmatched <- length(others$spatial) != 0
+    has_either_unmatched <- has_t_unmatched | has_s_unmatched
+    if (has_t_unmatched){
+      cli::cli_alert_warning(
+        "Some sites in the temporal table don't have spatial information"
+        )
     }
 
+    if (has_s_unmatched){
+      cli::cli_alert_warning(
+        "Some sites in the spatial table don't have temporal information"
+        )
+    }
 
-    return(list(paired = correction, others = others))
+    if (has_either_unmatched){
+      cli::cli_alert_warning(
+        'Use argument {.code output = "unmatch"} to check on the unmatched key'
+        )
+    }
   }
 
-  ts <- temporal
-  out <- spatial %>%  dplyr::nest_join(ts, by = shared)
-  coords <- names(out)[tidyselect::eval_select(coords, out)]
+  out <- suppressMessages(
+    dplyr::inner_join(spatial, temporal %>% nest(ts = -key_nm))
+  )
 
   new_cubble(out,
-             key = as_name(key), index = as_name(index), coords = coords,
+             key = key_nm, index = as_name(index), coords = coords,
              spatial = NULL, form = "nested")
 }
 
@@ -266,3 +286,60 @@ as_cubble.ncdf4 <- function(data, key, index, coords, vars,
              spatial = NULL, form = "nested")
 }
 
+#' @export
+as_cubble.stars <- function(data, key, index, coords, ...){
+
+  # parse the dimensions attribute
+  dim_obj <- attr(data, "dimensions")
+  dim_flatten <- map(dim_obj, parse_dimension)
+  longlat <- names(dim_flatten)[1:2]
+  time <- names(dim_flatten)[3]
+  mapping <- do.call("expand.grid", rev(dim_flatten)) %>%
+    dplyr::group_by(!!!syms(longlat)) %>%
+    dplyr::mutate(id = dplyr::cur_group_id())
+
+  # extract data underneath
+  raw <- unclass(data)
+  var_nm <- names(raw)
+  dim <- c(map(dim_flatten, length))
+  out <- map2(
+    raw, names(raw),
+    ~{single <- array(unlist(.x), dim = dim) %>% as.data.frame.table();
+    colnames(single)[length(dim_flatten) + 1] <- .y; return(single)})
+  res <- purrr::reduce(out, cbind) %>%
+    cbind(mapping) %>%
+    dplyr::select(names(dim_flatten), var_nm, "id") %>%
+    dplyr::arrange(.data$id) %>%
+    tibble::as_tibble() %>%
+    cubble::as_cubble(key = "id", index = time, coords = longlat)
+  res
+
+}
+
+
+parse_dimension <- function(obj){
+
+    if (!is.null(obj$value)) {
+      out <- obj$value
+    } else if (is.numeric(obj$from) & is.numeric(obj$to) & inherits(obj$delta, "numeric")){
+      out <- seq(obj$offset, obj$offset + (obj$to - 1) * obj$delta, by = obj$delta)
+    } else if (!is.na(obj$refsys)){
+      if (obj$refsys == "udunits"){
+      tstring <- attr(obj$offset, "units")$numerator
+      origin <- parse_time(tstring)
+
+      if (is.null(origin))
+        cli::cli_abort("The units is currently too complex for {.field cubble} to parse.")
+
+      tperiod <- sub(" .*", "\\1", tstring)
+      time <- seq(obj$from,obj$to, as.numeric(obj$delta))
+      out <- origin %m+% do.call(tperiod, list(x = floor(time)))
+      } else if (obj$refsys == "POSIXct"){
+        out <- obj$value
+      }
+    } else{
+      cli::cli_abort("The units is currently too complex for {.field cubble} to parse.")
+    }
+
+  out
+}

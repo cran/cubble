@@ -18,21 +18,13 @@ dplyr_row_slice.cubble_df <- function(data, i, ...){
   out <- vec_slice(data, i)
   key <- key_vars(data)
   # update spatial as subsetting will change the number of row
-  if (is_long(data)){
+  if (is_long(data) && length(key) == 1){
     keep <- unique(out[[key]])
     spatial <- spatial(data) %>%  filter(!!sym(key) %in% keep)
   }
 
   # TODO: update coords
-
   # TODO: update index - same reason
-
-
-
-  if ("tbl_ts" %in% class(data)){
-    out <- tsibble::build_tsibble(out, key = key_vars(data)[1])
-  }
-
   dplyr_reconstruct(out, data)
 }
 
@@ -40,6 +32,18 @@ dplyr_row_slice.cubble_df <- function(data, i, ...){
 dplyr_reconstruct.cubble_df <- function(data, template) {
 
   if (cubble_can_reconstruct(data, template)){
+
+    if(inherits(template, "sf")) {
+
+      attr(data, "sf_column") <- attr(template, "sf_column")
+      attr(data, "agr") <- attr(template, "agr")
+      class(data) <- c("sf", class(data))
+    }
+    if(inherits(template, "tbl_ts")){
+      class(data) <- c("tbl_ts", class(data))
+      data <- tsibble::build_tsibble(data, key = key_vars(template)[1])
+    }
+
     new_cubble(data,
                key = key_vars(template), index = index(template),
                coords = coords(template), spatial = spatial(template),
@@ -47,7 +51,19 @@ dplyr_reconstruct.cubble_df <- function(data, template) {
   } else{
     # otherwise become a tibble
     x <- vctrs::new_data_frame(data)
-    tibble::new_tibble(x, nrow = nrow(x))
+    x <- tibble::new_tibble(x, nrow = nrow(x))
+
+    if ("tbl_ts" %in% class(template)){
+      x <- tsibble::build_tsibble(x, key = key_vars(template)[1])
+    }
+
+
+    if ("sf" %in% class(template)) {
+      x <- sf::st_as_sf(x, sf_column_name = attr(template, "sf_column"))
+    }
+
+    return(x)
+
   }
 
 }
@@ -74,27 +90,28 @@ cubble_can_reconstruct <- function(data, to){
 summarise.cubble_df <- function(data, ...){
   key <- key_vars(data)
   spatial <- spatial(data)
-  out <- NextMethod("summarise")
+  origin <- data
+  class(data) <- class(data)[class(data) != "cubble_df"]
+  out <- NextMethod()
 
-  new_cubble(out,
-             key = key, index = index(data), coords = coords(data),
-             spatial = spatial, form = determine_form(out))
+  dplyr_reconstruct(out, origin)
+
 }
 
 
 #' @export
-select.cubble_df <- function(data, ...){
-  out <- NextMethod("select")
-
-  dplyr_reconstruct(out, data)
-}
+# select.cubble_df <- function(data, ...){
+#   out <- NextMethod()
+#
+#   dplyr_reconstruct(out, data)
+# }
 
 
 #' @export
 #' @importFrom dplyr group_by_prepare
 group_by.cubble_df <- function(data, ...){
   key <- key_vars(data)
-  groups <- dplyr::group_by_prepare(data, ..., .add = TRUE, caller_env = caller_env())
+  groups <- dplyr::group_by_prepare(data, ..., .add = TRUE)
   group_var <- groups$group_names
   index <- setdiff(group_var,key)
   out <- groups$data
@@ -130,5 +147,3 @@ rename.cubble_df <- function(.data, ...){
   out <- .data %>%  as_tibble() %>%  rename(...)
   dplyr_reconstruct(out, .data)
 }
-
-
