@@ -1,16 +1,32 @@
 # helper
-slice_factory <- function(f, ...){
-  function(data, ...){
-    key <- key_vars(data)
-    spatial <- spatial(data)
-    index <- index(data)
-    coords <- coords(data)
-    data <- tibble::as_tibble(data)
+slice_head_tail <- function(f, ...){
+  function(.data, ..., n, prop, by){
+    key <- key_vars(.data)
+    spatial <- spatial(.data)
+    index <- index(.data)
+    coords <- coords(.data)
+    .data <- tibble::as_tibble(.data)
     out <- NextMethod()
 
     new_cubble(out,
                key = key , index = index , coords = coords,
-               spatial = spatial, form = determine_form(data))
+               spatial = spatial, form = determine_form(.data))
+  }
+}
+
+slice_min_max <- function(f, ...){
+  function(.data, order_by, ..., n, prop, by, with_ties, na_rm){
+    key <- key_vars(.data)
+    spatial <- spatial(.data)
+    index <- index(.data)
+    coords <- coords(.data)
+    .data <- tibble::as_tibble(.data)
+    order_by <- .data[[rlang::quo_get_expr(enquo(order_by))]]
+    out <- NextMethod()
+
+    new_cubble(out,
+               key = key , index = index , coords = coords,
+               spatial = spatial, form = determine_form(.data))
   }
 }
 
@@ -20,8 +36,9 @@ slice_factory <- function(f, ...){
 #' single plot. The slicing family in cubble wraps around the [dplyr::slice()] family to
 #' allow slicing from top and bottom, based on a variable, or in random.
 #'
-#' @param data a cubble object to slice
-#' @param ... other arguments passed to the [dplyr::slice()]
+#' @param .data a cubble object to slice
+#' @param ...,n,prop,by other arguments passed to the [dplyr::slice()]
+#' @param order_by,with_ties,na_rm other arguments passed to the [dplyr::slice()]
 #' @examples
 #' # slice the first 50 stations from the top/ bottom
 #' library(dplyr)
@@ -39,23 +56,23 @@ slice_factory <- function(f, ...){
 #' @rdname slice
 #' @return a cubble object
 #' @export
-slice_head.cubble_df <- slice_factory("slice_head", group = FALSE)
+slice_head.cubble_df <- slice_head_tail("slice_head")
 
 #' @rdname slice
 #' @export
-slice_tail.cubble_df <- slice_factory("slice_tail")
+slice_tail.cubble_df <- slice_head_tail("slice_tail")
 
 #' @rdname slice
 #' @export
-slice_min.cubble_df <- slice_factory("slice_min")
+slice_min.cubble_df <- slice_min_max("slice_min")
 
 #' @rdname slice
 #' @export
-slice_max.cubble_df <- slice_factory("slice_max")
+slice_max.cubble_df <- slice_min_max("slice_max")
 
 #' @rdname slice
 #' @export
-slice_sample.cubble_df <- slice_factory("slice_sample")
+slice_sample.cubble_df <- slice_min_max("slice_sample")
 
 #' Location-based slicing
 #' @param data the data to slice
@@ -76,7 +93,7 @@ slice_nearby <- function(data, coord, buffer, n){
 }
 
 #' @export
-slice_nearby.cubble_df <- function(data, coord, buffer = NA, n = NA){
+slice_nearby.cubble_df <- function(data, coord, buffer = NA, n = NA, ...){
 
   test_cubble(data)
   if (form(data) == "long") data <- data |> face_spatial()
@@ -102,10 +119,11 @@ slice_nearby.cubble_df <- function(data, coord, buffer = NA, n = NA){
       mutate(long_ref = coord[1], lat_ref = coord[2]) |>
       calc_dist(coords1 = as.list(coords(data)) |> syms(),
                 coords2 = list(long_ref = sym("long_ref"), lat_ref = sym("lat_ref"))) |>
-      slice_min(.data$dist, n = n)
+      slice_min(order_by = dist, n = n)
   }
 
   out
 
 
 }
+globalVariables(c(".data", "dist"))

@@ -87,7 +87,8 @@ cubble_can_reconstruct <- function(data, to){
 }
 
 #' @export
-summarise.cubble_df <- function(data, ...){
+summarise.cubble_df <- function(.data, ..., .by, .groups){
+  data <- .data
   key <- key_vars(data)
   spatial <- spatial(data)
   origin <- data
@@ -109,7 +110,8 @@ summarise.cubble_df <- function(data, ...){
 
 #' @export
 #' @importFrom dplyr group_by_prepare
-group_by.cubble_df <- function(data, ...){
+group_by.cubble_df <- function(.data, ..., .add, .drop){
+  data <- .data
   key <- key_vars(data)
   groups <- dplyr::group_by_prepare(data, ..., .add = TRUE)
   group_var <- groups$group_names
@@ -122,7 +124,8 @@ group_by.cubble_df <- function(data, ...){
 }
 
 #' @export
-ungroup.cubble_df <- function(data, ...){
+ungroup.cubble_df <- function(x, ...){
+  data <- x
   ungroup_var <- names(enquos(..., .named = TRUE))
 
   if (!all(ungroup_var %in% names(data))){
