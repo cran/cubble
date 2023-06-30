@@ -1,19 +1,20 @@
 #' Functions to extract NetCDF dimension and variables
 #' @param data a NetCDF file read in from \code{ncdf4::nc_open()}
-#' @param vars variables to read, see the variables in your data with \code{names(data$var)}
-#' @export
+#' @param vars variables to read, see the variables in your data with
+#' \code{names(data$var)}
 #' @importFrom ncdf4 ncvar_get
 #' @rdname netcdf
 #' @return extracted netcdf4 components
-extract_var <- function(data, vars){
+#' @keywords internal
+extract_var <- function(data, vars = NULL){
   if (!inherits(data, "ncdf4")) abort("Data supplied is not of class ncdf4")
+  if (is_missing(vars)){vars <- names(data$var)}
 
   out <- map(vars, ~ncdf4::ncvar_get(data,.x))
 
   list(var = out, name = vars)
 }
 
-#'@export
 #' @rdname netcdf
 extract_longlat <- function(data){
   if (!inherits(data, "ncdf4")) abort("Data supplied is not of class ncdf4")
@@ -26,20 +27,14 @@ extract_longlat <- function(data){
   lat_name <- c("lat", "latitude")
   if (any(dims %in% lat_name)) lat_idx <- which(dims %in% lat_name)
 
-  # if (all(!dims %in% c("longitude", "latitude", "time"))){
-  #   abort("Dimension supported by cubble from NetCDF file: long, lat, and time.")
-  # }
-
-
-  long <- ncdf4::ncvar_get(data, dims[long_idx])
-  lat <- ncdf4::ncvar_get(data, dims[lat_idx])
+  long <- ncdf4::ncvar_get(data, dims[long_idx]) %>% as.vector()
+  lat <- ncdf4::ncvar_get(data, dims[lat_idx]) %>% as.vector()
 
   list(long = long, lat = lat)
 
 }
 
 #' @importFrom lubridate %m+% hours days minutes seconds years
-#' @export
 #' @rdname netcdf
 extract_time <- function(data){
   if (!inherits(data, "ncdf4")) abort("Data supplied is not of class ncdf4")

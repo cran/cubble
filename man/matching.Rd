@@ -3,79 +3,107 @@
 \name{match_sites}
 \alias{match_sites}
 \alias{match_spatial}
-\alias{match_postprocessing}
 \alias{match_temporal}
-\title{Matching sites from two data sources}
+\title{Match stations in two cubbles by spatial distance/ temporal similarity}
 \usage{
 match_sites(
-  major,
-  minor,
-  spatial_single_match = TRUE,
-  spatial_n_keep = 1,
-  spatial_dist_max = 10,
+  df1,
+  df2,
+  crs = sf::st_crs("OGC:CRS84"),
+  which = NULL,
+  par = 0,
+  spatial_n_each = 1,
+  spatial_n_group = 4,
+  data_id,
+  match_id,
   temporal_matching = TRUE,
   temporal_by,
+  temporal_match_fn = match_peak,
   temporal_n_highest = 20,
-  temporal_independent,
   temporal_window = 5,
-  temporal_min_match = 10
+  ...
 )
 
 match_spatial(
-  major,
-  minor,
-  spatial_single_match = TRUE,
-  spatial_n_keep = 1,
-  spatial_dist_max = 10
+  df1,
+  df2,
+  crs = sf::st_crs("OGC:CRS84"),
+  which = NULL,
+  par = 0,
+  spatial_n_each = 1,
+  spatial_n_group = 4,
+  return_cubble = FALSE
 )
 
-match_postprocessing(major, minor, match_table)
-
 match_temporal(
-  major,
-  minor,
+  data,
+  data_id,
+  match_id = NULL,
   temporal_by,
-  temporal_n_highest = 20,
-  temporal_independent,
+  return_cubble = FALSE,
+  temporal_match_fn = match_peak,
+  temporal_n_highest = 30,
   temporal_window = 5,
-  temporal_min_match = 10
+  ...
 )
 }
 \arguments{
-\item{major}{The major dataset to match, every key in the major dataset will have a match, unless filtered by \code{dist_max}}
+\item{df1, df2}{the two cubble objects to match}
 
-\item{minor}{The dataset to match from}
+\item{crs}{a crs object from \code{\link[sf:st_crs]{sf::st_crs()}}}
 
-\item{spatial_single_match}{Whether each observation in the minor dataset is only allowed to to be matched once, default to \code{TRUE}}
+\item{which}{character; for Cartesian coordinates only: one of \code{Euclidean}, \code{Hausdorff} or \code{Frechet}; for geodetic coordinates, great circle distances are computed; see details}
 
-\item{spatial_n_keep}{The number of matching to keep}
+\item{par}{for \code{which} equal to \code{Hausdorff} or \code{Frechet}, optionally use a value between 0 and 1 to densify the geometry}
 
-\item{spatial_dist_max}{The maximum distance allowed between matched pair}
+\item{spatial_n_each}{integer, the number of matched "station" in \code{df2}
+for each \code{df1} record}
 
-\item{temporal_matching}{Whether to perform temporal matching}
+\item{spatial_n_group}{integer, the number of matched group (pair) return}
 
-\item{temporal_by}{The variable used for temporal matching}
+\item{data_id}{a character (or symbol), the variable differentiates
+\code{df1} and \code{df2}}
 
-\item{temporal_n_highest}{The number of highest peak used for temporal matching}
+\item{match_id}{a character (or symbol), the variable differentiate
+each group of match}
 
-\item{temporal_independent}{The dataset used to construct the temporal window,
-need to be the name of either major or minor.}
+\item{temporal_matching}{logical, whether to match temporally}
 
-\item{temporal_window}{The temporal window allowed to fall in}
+\item{temporal_by}{in the \code{by} syntax in \code{dplyr::*_join()},
+the variables to match temporally in \code{df1} and \code{df2}.}
 
-\item{temporal_min_match}{The minimum number of peak matching for temporal matching}
+\item{temporal_match_fn}{character, the function name on how two time
+series should be matched}
 
-\item{match_table}{The spatial matching table}
-}
-\value{
-A cubble with matched pairs
+\item{temporal_n_highest}{numeric, the number of highest peak used for
+temporal matching in \code{match_peak}}
+
+\item{temporal_window}{The temporal window allowed in \code{match_peak}}
+
+\item{...}{parameters passing to temporal match}
+
+\item{return_cubble}{logical (default to false), whether to return the
+cubble object or a matching summary table}
+
+\item{data}{the resulting cubble object from spatial matching (with
+\code{return_cubble = TRUE} in spatial matching)}
 }
 \description{
-The function includes both spatial and temporal matching. The spatial matching
-is based on the distance and the distance is calculated using the Vincenty
-formula assuming earth is sphere with a radius of 6371 km. The temporal matching
-first filters out the \code{n} largest increases, determined by \code{temporal_n_highest},
-in both datasets,  constructs an interval of length \code{temporal_window} from
-one dataset and count the number that large increase from the other dataset
-falls into the interval constructed.
+The spatial matching is calculated using \code{\link[sf:geos_measures]{sf::st_distance()}} with different
+distance (in meter or degree) available depending on the coordinate reference
+system and parameter (\code{which} and \code{par}). The temporal matching is based on
+a temporal matching function (\code{temporal_match_fn}) that can be customised.
+}
+\examples{
+library(dplyr)
+climate_aus <- mutate(climate_aus, type = "climate")
+match_spatial(climate_aus, river)
+# turn with different distance calculation:
+match_spatial(climate_aus, river, which = "Hausdorff")
+# tune the number of matches in each group
+match_spatial(climate_aus, river, spatial_n_each = 5, spatial_n_group = 2)
+
+a1 <- match_spatial(climate_aus, river, return_cubble = TRUE) \%>\% bind_rows()
+match_temporal(a1, data_id = type, match_id = group,
+               temporal_by = c("prcp" = "Water_course_level"))
 }

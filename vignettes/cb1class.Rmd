@@ -1,0 +1,89 @@
+---
+title: "1. The cubble class"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{class}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\usepackage[utf8]{inputenc}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  warning = FALSE, 
+  message = FALSE
+)
+```
+
+```{r setup, echo = FALSE}
+library(cubble)
+library(tsibble)
+library(tibble)
+library(ggplot2)
+library(dplyr)
+library(tsibble)
+library(patchwork)
+```
+
+# The cubble object
+
+The cubble class is an S3 class built on tibble that allows the spatio-temporal data to be wrangled in two forms: a nested/spatial form and a long/temporal form. It consists of two subclasses: 
+
+  - a nested/ spatial cubble is represented by the class `c("spatial_cubble_df", "cubble_df")`
+  - a long/ temporal cubble is represented by the class `c("temporal_cubble_df", "cubble_df")`
+
+In a nested cubble, spatial variables are organised as columns and temporal variables are nested within a specialised `ts` column: 
+
+```{r echo = FALSE}
+cb_nested <- climate_mel
+```
+
+```{r}
+cb_nested
+class(cb_nested)
+```
+
+This toy dataset is a subset of a larger data `climate_aus` sourced from the Global Historical Climatology Network Daily (GHCND). It records three airport stations located in Melbourne, Australia and includes spatial variables such as station ID, longitude, latitude, elevation, station name, World Meteorology Organisation ID. The dataset contains temporal variables including precipitation, maximum and minimum temperature, which can be read from the cubble header. 
+
+In a long cubble, the temporal variables are expanded into the long form, while the spatial variables are stored as a data attribute: 
+
+```{r echo = FALSE}
+cb_long <- climate_mel %>% face_temporal()
+```
+
+```{r}
+cb_long
+class(cb_long)
+```
+
+The cubble header now shows the recorded temporal period (2020-01-01 to 2020-01-10), the interval (1 day), and there is no gaps in the data.
+
+# The cubble attributes
+
+A cubble object inherits the attributes from tibble (and its subclasses): `class`, `row.names`, and `names`. Additionally, it has three specialised attributes: 
+
+  - `key`: the spatial identifier
+  - `index`: the temporal identifier
+  - `coords`: a pair of ordered coordinates associated with the location
+  
+Readers familiar with the `key` and `index` attributes from the `tsibble` package will already know the two arguments. In cubble, the `key` attribute identifies the row in the nested cubble, and when combined with the `index` argument, it identifies the row in the long cubble. Currently, cubble only supports one variable as the key, and the accepted temporal classes for the index include the base R classes `Date`, `POSIXlt`, `POSIXct` as well as tsibble's `tsibble::yearmonth()`, `tsibble::yearweek()`, and `tsibble::yearquarter()` classes.
+
+The `coords` attribute represents an ordered pair of coordinates. It can be either an unprojected pair of longitude and latitude or a projected easting and northing value. The `sf` package is used under the hood to calculate the bounding box, displayed in the header of a nested cubble, and perform other spatial operations.
+
+The long cubble has a special attribute called `spatial` to store the spatial variables, which includes all the variables from the nested cubble except for the `ts` column. Below we print the attributes information for the previously shown `cb_nested` and `cb_long` objects:
+
+```{r}
+attributes(cb_nested)
+attributes(cb_long)
+```
+
+The following shortcut functions are available to extract components from the attributes:
+
+  - `key_vars()`: the name of the key attribute as a string , i.e. `"id"`, 
+  - `key_data()`: the tibble object stored in the key attribute,
+  - `key()`: the name of the key attribute as a symbol in a list, i.e. `[[1]] id`,
+  - `index()`: the index attribute as a symbol, i.e. `date`,
+  - `index_var()`: the index attribute as a string, i.e. `"date"`,
+  - `coords()`: a character vector of length two representing the coordinate pairs, i.e. `"long" "lat"`, and
+  - `spatial()`: the tibble object for the spatial variables.

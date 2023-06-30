@@ -101,6 +101,7 @@ GeomGlyph <- ggplot2::ggproto(
   required_aes = c("x_minor", "x_major", "y_minor", "y_major"),
   default_aes = ggplot2::aes(
     colour = "black", size = 0.5, linetype = "solid", alpha = 1,
+    linewidth = 0.5,
     polar = FALSE,
     width = ggplot2::rel(2.1),
     height = ggplot2::rel(2.1),
@@ -151,7 +152,7 @@ GeomGlyphLine <- ggplot2::ggproto(
 
   required_aes = c("x_minor", "x_major", "y_minor", "y_major"),
   default_aes = ggplot2::aes(
-    colour = "grey", size = 1, linetype = "solid", alpha = 1,
+    colour = "grey", size = 1, linetype = "solid", alpha = 1, linewidth = 0.5,
     polar = FALSE,
     width = ggplot2::rel(2.1),
     height = ggplot2::rel(2.1)
@@ -199,7 +200,7 @@ GeomGlyphBox <- ggplot2::ggproto(
 
   required_aes = c("x_minor", "x_major", "y_minor", "y_major"),
   default_aes = ggplot2::aes(
-    colour = "grey", size = 0.5, linetype = "solid", alpha = 1,
+    colour = "grey", size = 0.5, linetype = "solid", alpha = 1, linewidth = 0.5,
     fill = "transparent",
     polar = FALSE,
     width = ggplot2::rel(2.1),
@@ -253,7 +254,8 @@ get_scale <- function(x) {
 
 glyph_data_setup <- function(data, params){
   if (length(unique(data$group)) == 1){
-    data$group <- interaction(data$x_major, data$y_major, drop = TRUE)
+    data$group <- as.integer(interaction(data$x_major, data$y_major,
+                                         drop = TRUE))
     data <- data %>%  dplyr::group_by(.data$group)
   }
 
@@ -275,7 +277,8 @@ glyph_data_setup <- function(data, params){
       )
   }
 
-  datetime_class <- c("Date", "yearmonth", "yearweek", "yearquarter")
+  datetime_class <- c(
+    "Date", "yearmonth", "yearweek", "yearquarter","POSIXct", "POSIXlt")
   if (any(class(data$x_minor) %in% datetime_class)){
     data[["x_minor"]] <- as.numeric(data[["x_minor"]])
   }
@@ -284,9 +287,11 @@ glyph_data_setup <- function(data, params){
     dplyr::mutate(
       polar = params$polar,
       width = ifelse(!is.rel(params$width), unclass(params$width),
-        ggplot2::resolution(.data$x_major, zero = FALSE) * unclass(params$width)),
+        ggplot2::resolution(.data$x_major, zero = FALSE) *
+          unclass(params$width)),
       height = ifelse(!is.rel(params$height), unclass(params$height),
-        ggplot2::resolution(.data$y_major, zero = FALSE) * unclass(params$height))
+        ggplot2::resolution(.data$y_major, zero = FALSE) *
+          unclass(params$height))
       )
 
   if (any(data$polar)) {
@@ -302,8 +307,9 @@ glyph_data_setup <- function(data, params){
   } else {
     if (isTRUE(params$global_rescale)) data <- data %>%  dplyr::ungroup()
     data <- data %>%
-      dplyr::mutate(x = .data$x_major + rescale11(.data$x_minor) * .data$width / 2,
-                    y = .data$y_major + rescale11(.data$y_minor) * .data$height / 2)
+      dplyr::mutate(
+        x = .data$x_major + rescale11(.data$x_minor) * .data$width / 2,
+        y = .data$y_major + rescale11(.data$y_minor) * .data$height / 2)
   }
 
   data %>% dplyr::ungroup()

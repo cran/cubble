@@ -1,156 +1,137 @@
-#' @rdname cubble-class
-#' @param x,width,n_extra,n,max_extra_cols,max_footer_lines see pillar tbl-format.R
+#' Print methods
+#' @inheritParams base::format
+#' @inheritParams base::print
 #' @importFrom  tibble tbl_sum
-#' @return a cubble object
+#' @rdname cubble-print
 #' @export
-print.cubble_df <- function(x, width = NULL, ...,
-                            n_extra = NULL,
-                            n = NULL, max_extra_cols = NULL, max_footer_lines = NULL){
+#' @examples
+#' climate_mel # a nested/spatial cubble
+#' face_temporal(climate_mel) # a long/temporal cubble
+print.cubble_df <- function(x, width = NULL, ...){
   # ref: https://github.com/r-lib/pillar/blob/main/R/tbl-format.R
-  writeLines(format(
-    x,
-    width = width, ...,
-    n = n, max_extra_cols = max_extra_cols, max_footer_lines = max_footer_lines
-  ))
+  writeLines(format(x, width = width, ...))
 }
 
-#' @rdname cubble-class
-#' @importFrom  tibble tbl_sum
-#' @return a cubble object
+#' @rdname cubble-print
 #' @export
-tbl_sum.cubble_df <- function(x) {
+tbl_sum.spatial_cubble_df <- function(x){
+  key <- key_vars(x)
+  key_n <- nrow(key_data(x))
+  index <- index(x)
 
-  data <- x
-  key <- key_vars(data)[1]
-  key_n <- map_dbl(key, ~length(unique(key_data(data)[[.x]])))
-
-  check <- check_coords(data)
-  bbox <- check$bbox
-
-  bbox_msg <- glue::glue("[{bbox}]")
-
-  if (is_nested(data)){
-    ts_size <- map_dbl(data$ts, vec_size) != 0
-    var_names <- names(data$ts[ts_size][[1]])
-    ts <- data$ts[ts_size][[1]]
-    var_type <- map(ts, tibble::type_sum)
-
-  } else if (is_long(data)){
-    sp <- spatial(data)
-    all <- map(sp, tibble::type_sum)
-    all <- all[names(all) != key]
-    var_names <- names(all)
-    var_type <- all
-
+  # header line 1
+  line1 <- glue::glue("key: {key} [{key_n}], index: {index}, nested form")
+  if ("rowwise_df" %in% class(x)){
+    line1 <- glue::glue("{line1}, groups: rowwise")
+  } else if ("groups" %in% names(attributes(x))){
+    group_var <- head(names(x %@% groups), -1)
+    group_n <- nrow(x %@% groups)
+    if (all(group_var != key))
+      line1 <- glue::glue("{line1}, groups: {group_var} [{group_n}]")
   }
-  var_msg <- glue::glue_collapse(glue::glue("{var_names} [{var_type}]"), sep = ", ")
+  if (is_sf(x)) line1 <- glue::glue("{line1}, [sf]")
 
-  size <- tibble::size_sum(data)
-  if(is_nested(data)){
-    msg <- glue::glue("{key} [{key_n}]: nested form")
-  } else if(is_long(data)){
-    index <- index(data) |> paste0(collapse = ", ")
-    msg <- glue::glue("{index}, {key} [{key_n}]: long form")
+
+  # header line 2 - print bbox
+  x_is_sf <- is_sf(x)
+  if (!x_is_sf) {
+    coord_vars <- coords(x)
+    x <- as_tibble(x) %>% sf::st_as_sf(coords = coord_vars)
   }
 
-  if (inherits(data, "tbl_ts")){
-    msg <- glue::glue("{msg} [tsibble]")
-  } else if (inherits(data, "sf")){
-    msg <- glue::glue("{msg} [sf]")
+  line2 <- glue::glue("[", paste0(sf::st_bbox(x), collapse = ", "), "]")
+  if (!x_is_sf) {
+    line2 <- glue::glue(line2, ", Missing CRS!")
+  } else{
+    line2 <- glue::glue(line2, ", {sf::st_crs(x, parameters = TRUE)$Name}")
   }
 
-  if (is_nested(data)) {
-    c("cubble" = msg, "bbox" = bbox_msg, "temporal" = var_msg)
-  } else if (is_long(data)) {
-    c("cubble" = msg, "bbox" = bbox_msg, "spatial" = var_msg)
-  }
+  # header line 3: temporal variables
+  all <- map(x$ts[[1]], tibble::type_sum)
+  line3 <- glue::glue_collapse(
+    glue::glue("{names(all)} [{all}]"), sep = ", ")
 
+  c("cubble" = line1, "spatial" = line2, "temporal" = line3)
 
 }
 
-#' @rdname cubble-class
-#' @return a TRUE/FALSE predicate
+#' @rdname cubble-print
 #' @export
-is_cubble <- function(data){
-  inherits(data, "cubble_df")
-}
+tbl_sum.temporal_cubble_df <- function(x){
 
+  key <- key_vars(x)[1]
+  key_n <- nrow(spatial(x))
+  index <- index(x)
 
-check_coords <- function(data, long_tol = 10, lat_tol = 10){
-  test_cubble(data)
-
-  if (form(data) == "nested"){
-    dt <- as_tibble(data)
-    if (".val" %in% names(dt)) dt <- dt |> unnest(.data$.val)
-
-
-  } else if (form(data) == "long"){
-    dt <- spatial(data)
+  # header line 1
+  line1 <- glue::glue("key: {key} [{key_n}], index: {index}, long form")
+  if ("rowwise_df" %in% class(x)){
+    line1 <- glue::glue("{line1}, groups: rowwise")
+  } else if ("groups" %in% names(attributes(x))){
+    group_var <- head(names(x %@% groups), -1)
+    group_n <- nrow(x %@% groups)
+    if (!key %in% group_var) {
+      group_var <- paste0(group_var, collapse = ", ")
+      line1 <- glue::glue("{line1}, groups: {group_var} [{group_n}]")
+    }
   }
+  if (is_tsibble(x)) line1 <- glue::glue("{line1}, [tsibble]")
 
-  long <- sort(dt[[coords(data)[1]]])
-  lat <- sort(dt[[coords(data)[2]]])
-
-  long_diff <- long - dplyr::lag(long)
-  lat_diff <- lat - dplyr::lag(lat)
-
-  detect_long_gap <- any(long_diff > long_tol, na.rm = TRUE)
-  detect_lat_gap <- any(lat_diff > lat_tol, na.rm = TRUE)
-
-
-  bbox_string <- check_bbox_digits(range(long), range(lat))
-  bbox <- glue::glue_collapse(bbox_string, sep = ", ")
-
-  if (detect_long_gap & detect_lat_gap){
-    signal <- glue::glue("- check gap on {coords(data)[1]} and {coords(data)[2]}")
-  } else if (detect_long_gap){
-    signal <- glue::glue("- check gap on {coords(data)[1]}")
-  } else if (detect_lat_gap){
-    signal <- glue::glue("- check gap on {coords(data)[2]}")
+  # line 2: FROM -- TO [BY] HAS_GAP
+  if (!is_tsibble(x)) {
+    x_tsibble <- as_tsibble(as_tibble(x), key = key_vars(x), index = index(x))
   } else{
-    signal <- ""
+    x_tsibble <- x
   }
-
-  list(bbox = bbox, msg = signal)
-}
-
-
-round_towards_inf <- function(x){
-  sign(x) * ceiling(abs(x) * 100)/ 100
-}
-
-round_towards_zero <- function(x){
-  sign(x) * floor(abs(x)  * 100)/ 100
-}
-
-round_upper <- function(x) {
-  if (x > 0){
-    round_towards_inf(x)
-  } else{
-    round_towards_zero(x)
-  }
-}
-
-round_lower <- function(x){
-  if (x > 0){
-    round_towards_zero(x)
-  } else{
-    round_towards_inf(x)
-  }
-}
+  from_to <- range(as_tibble(x)[[cubble::index(x)]])
+  by <- tsibble::interval(x_tsibble)
+  gaps <- tsibble::scan_gaps(x_tsibble)
+  if (nrow(gaps) == 0) gap_msg <- "no gaps" else gap_msg <- "has gaps!"
+  line2 <- glue::glue(
+    paste0(from_to, collapse = " -- "), " [", {format(by)}, "], ", {gap_msg})
 
 
-check_bbox_digits <- function(long_rg, lat_rg){
-  if (any(nchar(sub(".*\\.", "", x = long_rg)) >= 2)){
-    long_l <- round_lower(long_rg[1])
-    long_h <- round_upper(long_rg[2])
-  }
+  # line 3: spatial variables
+  all <- map(spatial(x), tibble::type_sum)
+  spatial_vars <- all[names(all) != key]
+  line3 <- glue::glue_collapse(
+    glue::glue("{names(spatial_vars)} [{spatial_vars}]"), sep = ", ")
 
-  if (any(nchar(sub(".*\\.", "", x = lat_rg)) >= 2)){
-    lat_l <- round_lower(lat_rg[1])
-    lat_h <- round_upper(lat_rg[2])
-  }
-
-  c(long_l, lat_l, long_h, lat_h)
+  c("cubble" = line1, "temporal" = line2, "spatial" = line3)
 
 }
+
+
+#' Predicate functions on the object class
+#' @param data an object to test for the class
+#' @return a logical value of TRUE/FALSE
+#' @rdname check-class
+#' @export
+#' @examples
+#' is_cubble(stations)
+#' is_cubble(meteo)
+#' is_cubble(climate_flat)
+#' is_cubble(climate_mel)
+#' is_cubble(climate_aus)
+#' is_cubble_spatial(climate_aus)
+#' is_cubble_temporal(climate_aus)
+is_cubble <- function(data) inherits(data, "cubble_df")
+
+#' @rdname check-class
+#' @export
+is_cubble_spatial <- function(data) inherits(data, "spatial_cubble_df")
+
+#' @rdname check-class
+#' @export
+is_cubble_temporal <- function(data) inherits(data, "temporal_cubble_df")
+
+#' @rdname check-class
+#' @export
+is_sf <- function(data) inherits(data, "sf")
+
+#' @rdname check-class
+#' @export
+is_tsibble <- function(data) inherits(data, "tbl_ts")
+
+
+
