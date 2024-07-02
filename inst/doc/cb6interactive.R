@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>", 
@@ -35,11 +35,11 @@ climate_smaller <- climate_aus |> head(n = 30)
 
 
 ## -----------------------------------------------------------------------------
-nested <- clean %>% SharedData$new(~id, group = "cubble")
+nested <- clean |> SharedData$new(~id, group = "cubble")
 long <- clean |>
   face_temporal() |>
   unfold(temp_diff_var) |>
-  arrange(temp_diff_var) %>% 
+  arrange(temp_diff_var) |> 
   SharedData$new(~id, group = "cubble")
 
 ## -----------------------------------------------------------------------------
@@ -55,7 +55,7 @@ map <- leaflet(nested, width = 300, height = 300) |>
                    popup = ~name, fillOpacity = 1, opacity = 1)
 
 ## -----------------------------------------------------------------------------
-ts_static <- long %>% 
+ts_static <- long |> 
   ggplot(aes(x = month, group = id,
          fill = temp_diff_var, color = temp_diff_var
          )) +
@@ -76,7 +76,7 @@ ts_static <- long %>%
     )
 
 ## -----------------------------------------------------------------------------
-ts_interactive <- ggplotly(ts_static, width = 600, height = 300) %>% 
+ts_interactive <- ggplotly(ts_static, width = 600, height = 300) |> 
     highlight(on = "plotly_selected", opacityDim = 0.012)
 
 ## ----eval = FALSE-------------------------------------------------------------

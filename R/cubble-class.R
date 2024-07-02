@@ -21,6 +21,15 @@
 #' @param by in the syntax of the \code{by} argument in [dplyr::left_join()],
 #'  used in `make_cubble()` when the key variable has different names in the
 #' `spatial` and `temporal` data.
+#' @param potential_match a \code{key_tbl} object from [cubble::check_key()].
+#' When unmatched key values appear in spatial and temporal data,
+#' \code{make_cubble} will prompt the user to use [cubble::check_key()] for
+#' checking. This argument allow the check result to be parsed back to
+#' \code{make_cubble} to also match the \code{potential_pairs} found by the
+#' check.
+#' @param key_use a character of either "spatial" or "temporal". When
+#' \code{potential_math} is activated, this argument specifies which key column
+#' in the potential match to use. Default to "temporal".
 #' @rdname cubble-class
 #' @return a cubble object
 #' @export
@@ -46,7 +55,7 @@ cubble <- function(..., key, index, coords) {
   coords <- names(data)[tidyselect::eval_select(coords, data)]
 
   all_vars <- find_invariant(data, !!key)
-  data <- data %>% tidyr::nest(ts = c(!!index, !!!all_vars$variant))
+  data <- data |> tidyr::nest(ts = c(!!index, !!!all_vars$variant))
 
   new_spatial_cubble(
     data, key = as_name(key), index = as_name(index), coords = coords)
@@ -54,8 +63,8 @@ cubble <- function(..., key, index, coords) {
 
 #' @rdname cubble-class
 #' @export
-make_cubble <- function(spatial, temporal, by = NULL, key, index, coords){
-
+make_cubble <- function(spatial, temporal, by = NULL, key, index, coords,
+                        potential_match = NULL, key_use = "temporal"){
   key <- enquo(key)
   index <- enquo(index)
   coords <- enquo(coords)
@@ -114,6 +123,22 @@ make_cubble <- function(spatial, temporal, by = NULL, key, index, coords){
     Please supply the shared key using the {.code by} argument")
   }
 
+  if (!is.null(potential_match)){
+    check_key_tbl(potential_match)
+    tp <- potential_match$potential_pairs$temporal
+    sp <- potential_match$potential_pairs$spatial
+
+    check_arg_key_use(key_use)
+    if (key_use == "spatial"){
+      idx <- match(temporal[[key]], tp)
+      temporal[[key]] <- ifelse(!is.na(idx), sp[idx], temporal[[key]])
+    } else{
+      idx <- match(spatial[[key]], sp)
+      spatial[[key]] <- ifelse(!is.na(idx), tp[idx], spatial[[key]])
+    }
+
+  }
+
   # find whether there are unmatched spatial and temporal key level
   slvl <- spatial[[by]]
   tlvl <- temporal[[by]]
@@ -137,12 +162,12 @@ make_cubble <- function(spatial, temporal, by = NULL, key, index, coords){
   )
 
   # only create when have both spatial & temporal info
-  spatial <- spatial %>% filter(!by %in% only_spatial)
+  spatial <- spatial |> filter(!by %in% only_spatial)
 
   if (is_sf(spatial)){
     # from discussion: https://github.com/r-spatial/sf/issues/951
     # to ensure the sf is built from a tibble
-    spatial <- spatial %>% as_tibble() %>% sf::st_as_sf()
+    spatial <- spatial |> as_tibble() |> sf::st_as_sf()
   }
 
   if (is_tsibble(temporal)){
@@ -151,10 +176,10 @@ make_cubble <- function(spatial, temporal, by = NULL, key, index, coords){
     index <- as_name(index)
   }
 
-  temporal <- temporal %>% filter(!by %in% only_temporal) %>%
-    select(as_name(index), setdiff(colnames(temporal), as_name(index)))
+  temporal <- temporal |> filter(!by %in% only_temporal) |>
+    select(dplyr::all_of(c(as_name(index), setdiff(colnames(temporal), as_name(index)))))
   out <- suppressMessages(
-    dplyr::inner_join(spatial, temporal %>% nest(ts = -by))
+    dplyr::inner_join(spatial, temporal |> nest(ts = -by))
     )
 
   new_spatial_cubble(
@@ -227,7 +252,7 @@ validate_temporal_cubble <- function(data, args){
   }
 
   x <- as_tibble(data)
-  dup_index <- split(x, x[[args$key]]) %>%
+  dup_index <- split(x, x[[args$key]]) |>
     map_lgl(~vec_duplicate_any(.x[[args$index]]))
   index_na <- any(is.na(x[[args$index]]))
 

@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -23,7 +23,7 @@ cb_nested
 class(cb_nested)
 
 ## ----echo = FALSE-------------------------------------------------------------
-cb_long <- climate_mel %>% face_temporal()
+cb_long <- climate_mel |> face_temporal()
 
 ## -----------------------------------------------------------------------------
 cb_long

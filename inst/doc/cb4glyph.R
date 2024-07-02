@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>",
@@ -18,22 +18,22 @@ knitr::include_graphics("cluster-diagram/glyph-steps.png")
 
 ## -----------------------------------------------------------------------------
 set.seed(12345)
-(tmax <- climate_aus %>% 
-    rowwise() %>% 
-    filter(nrow(ts) == 366) %>% 
+(tmax <- climate_aus |> 
+    rowwise() |> 
+    filter(nrow(ts) == 366) |> 
     slice_sample(n = 80))
 
 ## -----------------------------------------------------------------------------
-(tmax <- tmax %>%
-  face_temporal() %>%
-  group_by(month = tsibble::yearmonth(date)) %>%
+(tmax <- tmax |> 
+  face_temporal() |> 
+  group_by(month = tsibble::yearmonth(date)) |> 
   summarise(tmax = mean(tmax, na.rm = TRUE)))
 
 ## -----------------------------------------------------------------------------
-(tmax <- tmax %>% unfold(long, lat))
+(tmax <- tmax |> unfold(long, lat))
 
 ## -----------------------------------------------------------------------------
-tmax %>% 
+tmax |> 
   ggplot(aes(x_major = long, y_major = lat, 
              x_minor = month, y_minor = tmax))  + 
   geom_sf(data = ozmaps::abs_ste, 
@@ -51,12 +51,12 @@ tmax %>%
 #  library(tidyverse)
 #  library(ggsvg)
 #  library(patchwork)
-#  nsw <- ozmaps::abs_ste %>%
-#    filter(NAME %in% c("New South Wales")) %>%
+#  nsw <- ozmaps::abs_ste |>
+#    filter(NAME %in% c("New South Wales")) |>
 #    sf::st_simplify(dTolerance = 4000)
 #  
-#  single <- climate_aus %>% filter(id == "ASN00076031")
-#  glyph_dt <- single %>% face_temporal() %>% unfold(long, lat)
+#  single <- climate_aus |> filter(id == "ASN00076031")
+#  glyph_dt <- single |> face_temporal() |> unfold(long, lat)
 #  p1 <- ggplot() +
 #    geom_sf(data = nsw,fill = "transparent", linetype = "dotted")+
 #    geom_point(data = single, aes(x = long, y = lat), color = "#443750") +
@@ -66,20 +66,20 @@ tmax %>%
 #    scale_y_continuous(breaks = seq(-35, -33, 1)) +
 #    ggtitle("(1)")
 #  
-#  p2 <- single %>%
-#    face_temporal() %>%
+#  p2 <- single |>
+#    face_temporal() |>
 #    ggplot(aes(x = date, y = tmax)) +
 #    geom_line(color = "#443750") +
 #    theme_bw() +
 #    theme() +
 #    ggtitle("(2)")
 #  
-#  glyph <- glyph_dt %>%
+#  glyph <- glyph_dt |>
 #    ggplot(aes(x_major = long, x_minor = as.numeric(date),
 #               y_major = lat, y_minor = tmax)) +
 #    geom_glyph(width = 1, height = 0.3)
 #  
-#  p3 <- layer_data(glyph) %>%
+#  p3 <- layer_data(glyph) |>
 #    ggplot(aes(x = x, y = y)) +
 #    geom_line(color = "#443750") +
 #    theme_bw() +
@@ -88,7 +88,7 @@ tmax %>%
 #    ) +
 #    ggtitle("(3)") + xlab("long") + ylab("lat")
 #  
-#  p4 <- glyph_dt %>%
+#  p4 <- glyph_dt |>
 #    ggplot(aes(x_major = long, x_minor = as.numeric(date),
 #               y_major = lat, y_minor = tmax)) +
 #    geom_sf(data = nsw, fill = "transparent",

@@ -12,8 +12,8 @@
 #' @rdname face
 #' @export
 #' @examples
-#' cb_long <- climate_mel %>% face_temporal()
-#' cb_back <- cb_long %>% face_spatial()
+#' cb_long <- climate_mel |> face_temporal()
+#' cb_back <- cb_long |> face_spatial()
 #' identical(climate_mel, cb_back)
 face_temporal <- function(data, col) {
   UseMethod("face_temporal")
@@ -48,15 +48,15 @@ face_temporal.spatial_cubble_df <- function(data, col){
 
   # unnest the temporal variables
   if (is_tsibble) data$ts <- map(data$ts, tibble::as_tibble)
-  out <- as_tibble(data) %>%
-    dplyr::select(!!cur_key, !!col) %>%
+  out <- as_tibble(data) |>
+    dplyr::select(!!cur_key, !!col) |>
     tidyr::unnest(c(!!col))
 
   # organise spatial variables into `spatial`
   class(data) <- class(data)[class(data) != "cubble_df"]
 
   if (is_tsibble){
-    out <- out %>% tsibble::as_tsibble(key = !!cur_key, index = index)
+    out <- out |> tsibble::as_tsibble(key = !!cur_key, index = index)
     tsibble_attr <- attributes(out)
     index <- out %@% "index"
   }
@@ -93,12 +93,12 @@ face_spatial.temporal_cubble_df <- function(data) {
 
   tvars <- colnames(data)[colnames(data) != key_name]
   tvars <- tvars[!tvars %in% colnames(spatial)]
-  unfoldd_var <- intersect(names(data), names(spatial)) %>%
+  unfoldd_var <- intersect(names(data), names(spatial)) |>
     setdiff(key_name)
 
   class(data) <- setdiff(class(data), cb_temporal_cls)
-  temporal <- data %>% remove_attrs() %>% tidyr::nest(ts = -key_name)
-  out <- spatial %>% dplyr::left_join(temporal, by = key_name)
+  temporal <- data |> remove_attrs() |> tidyr::nest(ts = -key_name)
+  out <- spatial |> dplyr::left_join(temporal, by = key_name)
 
   new_spatial_cubble(
     out, key = key_name, index = index, coords = coords

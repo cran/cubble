@@ -9,8 +9,8 @@
 #' support tidyselect syntax
 #' @return a cubble object in the long form
 #' @examples
-#' climate_mel %>% face_temporal() %>% unfold(long, lat)
-#' climate_mel %>% face_temporal() %>% unfold(dplyr::starts_with("l"))
+#' climate_mel |> face_temporal() |> unfold(long, lat)
+#' climate_mel |> face_temporal() |> unfold(dplyr::starts_with("l"))
 #' @rdname unfold
 #' @export
 unfold <- function(data, ...) {
@@ -33,18 +33,13 @@ unfold.temporal_cubble_df <- function(data, ...){
   index <- index(data)
   coords <- coords(data)
 
-  to_join <- sp %>% as_tibble() |> select(c(key_vars(data), ...))
+  to_join <- sp |> as_tibble() |> select(c(key_vars(data), ...))
   out <- as_tibble(data) |> left_join(to_join, by = key)
-
-  if (nrow(out) != nrow(data)){
-    var <- names(dots)
-    cli::cli_alert_warning(
-      "The key and unfoldd variable{?s} {.field {var}} are not one-to-one."
-    )
-  }
 
   if (is_tsibble(data)){
     index <- data %@% index
+    out <- out |> tsibble::as_tsibble(key = !!key, index = index)
+    tsibble_attr <- attributes(out)
   } else{
     index <- as_name(index)
   }

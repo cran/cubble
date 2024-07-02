@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>", 
@@ -18,7 +18,7 @@ class(res)
 class(res$ts[[1]])
 
 ## -----------------------------------------------------------------------------
-climate_flat %>% as_cubble(key = id, index = date, coords = c(long, lat))
+climate_flat |> as_cubble(key = id, index = date, coords = c(long, lat))
 
 ## ----echo = TRUE--------------------------------------------------------------
 path <- system.file("ncdf/era5-pressure.nc", package = "cubble")
@@ -32,11 +32,11 @@ as_cubble(raw)
 ## -----------------------------------------------------------------------------
 tif <- system.file("tif/L7_ETMs.tif", package = "stars")
 x <- stars::read_stars(tif)
-x %>% as_cubble()
+as_cubble(x, index = band)
 
 ## -----------------------------------------------------------------------------
-dt <- climate_flat %>%
-  sf::st_as_sf(coords = c("long", "lat"), crs = sf::st_crs("OGC:CRS84")) %>%
+dt <- climate_flat |> 
+  sf::st_as_sf(coords = c("long", "lat"), crs = sf::st_crs("OGC:CRS84")) |> 
   sftime::st_as_sftime()
-dt %>% as_cubble(key = id, index = date)
+dt |> as_cubble(key = id, index = date)
 

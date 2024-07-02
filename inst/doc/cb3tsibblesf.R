@@ -1,4 +1,4 @@
-## ---- include = FALSE---------------------------------------------------------
+## ----include = FALSE----------------------------------------------------------
 knitr::opts_chunk$set(
   collapse = TRUE,
   comment = "#>"
@@ -16,13 +16,13 @@ ts_nested <- make_cubble(
 class(ts_long)
 
 ## ----echo = TRUE--------------------------------------------------------------
-ts_long %>% has_gaps()
+ts_long |> has_gaps()
 
 ## ----echo = TRUE--------------------------------------------------------------
 ts_long2 <- make_cubble(
   stations, meteo, 
-  key = id, index = date, coords = c(long, lat)) %>% 
-  face_temporal() %>% 
+  key = id, index = date, coords = c(long, lat)) |> 
+  face_temporal() |> 
   make_temporal_tsibble() 
 identical(ts_long2, ts_long)
 
@@ -33,11 +33,11 @@ identical(ts_long2, ts_long)
 class(sf_nested)
 
 ## ----echo =TRUE, message=FALSE------------------------------------------------
-sf_nested %>% sf::st_transform(crs = "EPSG:3857")
+sf_nested |> sf::st_transform(crs = "EPSG:3857")
 
 ## ----echo = TRUE--------------------------------------------------------------
 (sf_nested2 <- make_cubble(
   stations, meteo, 
-  key = id, index = date, coords = c(long, lat)) %>% 
+  key = id, index = date, coords = c(long, lat)) |> 
   make_spatial_sf())
 
