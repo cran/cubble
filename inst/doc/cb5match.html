@@ -422,7 +422,7 @@ syntax:</p>
 <span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt; List of 10</span></span></code></pre></div>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>res_sp[[<span class="dv">1</span>]]</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [2], index: date, nested form, [sf]</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.5203, -37.0194, 144.540295, -37.015122], WGS 84</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.52, -37.02, 144.54, -37.02], WGS 84</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;   id      long   lat  elev name  wmo_id ts       type              geometry</span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;  &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;list&gt;   &lt;chr&gt;          &lt;POINT [°]&gt;</span></span>
@@ -431,7 +431,7 @@ syntax:</p>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; # ℹ 2 more variables: group &lt;int&gt;, dist [m]</span></span></code></pre></div>
 <div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>(res_sp <span class="ot">&lt;-</span> res_sp[<span class="sc">-</span><span class="fu">c</span>(<span class="dv">5</span>, <span class="dv">8</span>)] <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>())</span>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [16], index: date, nested form, [sf]</span></span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.5203, -38.144913, 148.4667, -36.128657], WGS 84</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.52, -38.14, 148.47, -36.13], WGS 84</span></span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt;    id     long   lat  elev name  wmo_id ts       type              geometry</span></span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;    &lt;chr&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;list&gt;   &lt;chr&gt;          &lt;POINT [°]&gt;</span></span>
@@ -484,7 +484,7 @@ the highest number of matching peaks:</p>
 <span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a>    <span class="at">return_cubble =</span> <span class="cn">TRUE</span>)</span>
 <span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a>(res_tm <span class="ot">&lt;-</span> res_tm <span class="sc">|&gt;</span> <span class="fu">bind_rows</span>() <span class="sc">|&gt;</span> <span class="fu">filter</span>(group <span class="sc">%in%</span> <span class="fu">c</span>(<span class="dv">1</span>, <span class="dv">7</span>, <span class="dv">6</span>, <span class="dv">9</span>)))</span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [8], index: date, nested form, [sf]</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.5203, -37.8817, 147.572223, -36.8472], WGS 84</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.52, -37.88, 147.57, -36.85], WGS 84</span></span>
 <span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], matched [dbl]</span></span>
 <span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;   id         long   lat  elev name  wmo_id type              geometry group</span></span>
 <span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;     &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;  &lt;dbl&gt; &lt;chr&gt;          &lt;POINT [°]&gt; &lt;int&gt;</span></span>

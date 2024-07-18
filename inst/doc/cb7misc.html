@@ -366,7 +366,7 @@ operated in the spatial form (example here):</strong></p>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a>  <span class="fu">rowwise</span>() <span class="sc">|&gt;</span> </span>
 <span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a>  <span class="fu">mutate</span>(<span class="at">tmax_avg =</span> <span class="fu">mean</span>(ts<span class="sc">$</span>tmax, <span class="at">na.rm=</span><span class="cn">TRUE</span>))</span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form</span></span>
-<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], Missing CRS!</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], Missing CRS!</span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt;   id           long   lat  elev name              wmo_id ts       tmax_avg</span></span>
 <span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt; &lt;list&gt;      &lt;dbl&gt;</span></span>

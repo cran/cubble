@@ -440,7 +440,7 @@ component being also a sf object:</p>
 <span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">spatial =</span> stations_sf, <span class="at">temporal =</span> meteo, </span>
 <span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date))</span>
 <span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], WGS 84</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
 <span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
@@ -456,14 +456,13 @@ with <code>st_transform</code> on a cubble object:</p>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; Warning: st_crs&lt;- : replacing crs does not reproject data; use st_transform for</span></span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; that</span></span>
 <span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [16122635.6225205, -4576600.8687746, 16152057.3639371,</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; #   -4532279.35567565], WGS 84</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  78.4 essen…  95866  145. -37.7 (16130929 -4541016) &lt;tibble&gt;</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  12.1 moora…  94870  145. -38.0 (16152057 -4576601) &lt;tibble&gt;</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 113.  melbo…  94866  145. -37.7 (16122636 -4532279) &lt;tibble&gt;</span></span></code></pre></div>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [16122635.62, -4576600.87, 16152057.36, -4532279.36], WGS 84</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  78.4 essen…  95866  145. -37.7 (16130929 -4541016) &lt;tibble&gt;</span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  12.1 moora…  94870  145. -38.0 (16152057 -4576601) &lt;tibble&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 113.  melbo…  94866  145. -37.7 (16122636 -4532279) &lt;tibble&gt;</span></span></code></pre></div>
 <p>The counterpart to promote the spatial component in an existing
 cubble to be an sf object is <code>make_spatial_sf()</code>:</p>
 <div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>(sf_nested2 <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
@@ -472,7 +471,7 @@ cubble to be an sf object is <code>make_spatial_sf()</code>:</p>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">make_spatial_sf</span>())</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; CRS missing: using OGC:CRS84 (WGS84) as default</span></span>
 <span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], WGS 84</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   id           long   lat  elev name   wmo_id ts                  geometry</span></span>
 <span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;list&gt;           &lt;POINT [°]&gt;</span></span>

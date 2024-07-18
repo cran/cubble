@@ -368,7 +368,7 @@ creates the nested <code>cubble</code>:</p>
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">make_cubble</span>(<span class="at">spatial =</span> stations, <span class="at">temporal =</span> meteo,</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a>            <span class="at">key =</span> id, <span class="at">index =</span> date, <span class="at">coords =</span> <span class="fu">c</span>(long, lat))</span>
 <span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form</span></span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], Missing CRS!</span></span>
+<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], Missing CRS!</span></span>
 <span id="cb1-5"><a href="#cb1-5" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb1-6"><a href="#cb1-6" tabindex="-1"></a><span class="co">#&gt;   id           long   lat  elev name              wmo_id ts               </span></span>
 <span id="cb1-7"><a href="#cb1-7" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt; &lt;list&gt;           </span></span>
@@ -383,7 +383,7 @@ The class attributes from sf and tsibble will be carried over to the
 nested and long cubble:</p>
 <div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a>(res <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(<span class="at">spatial =</span> stations_sf, <span class="at">temporal =</span> meteo_ts))</span>
 <span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], WGS 84</span></span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
 <span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
 <span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
@@ -408,7 +408,7 @@ with tsibble and sf.</p>
 a single tibble object. It can be coerced into a cubble using:</p>
 <div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>climate_flat <span class="sc">|&gt;</span> <span class="fu">as_cubble</span>(<span class="at">key =</span> id, <span class="at">index =</span> date, <span class="at">coords =</span> <span class="fu">c</span>(long, lat))</span>
 <span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form</span></span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], Missing CRS!</span></span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], Missing CRS!</span></span>
 <span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
 <span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt;   id           long   lat  elev name              wmo_id ts               </span></span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;              &lt;dbl&gt; &lt;list&gt;           </span></span>
@@ -453,22 +453,22 @@ the variable and the grid resolution:</p>
 <div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>tif <span class="ot">&lt;-</span> <span class="fu">system.file</span>(<span class="st">&quot;tif/L7_ETMs.tif&quot;</span>, <span class="at">package =</span> <span class="st">&quot;stars&quot;</span>)</span>
 <span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>x <span class="ot">&lt;-</span> stars<span class="sc">::</span><span class="fu">read_stars</span>(tif)</span>
 <span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="fu">as_cubble</span>(x, <span class="at">index =</span> band)</span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [122848], index: band, nested form, [sf]</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [288790.500000803, 9110743.00002899, 298708.50000055,</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; #   9120746.50002874], SIRGAS 2000 / UTM zone 25S</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [122848], index: band, nested form</span></span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [288790.5, 9110743, 298708.5, 9120746.5], SIRGAS 2000 / UTM zone</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; #   25S</span></span>
 <span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; # temporal: band [int], L7_ETMs.tif [dbl]</span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;          x        y    id ts                         geometry</span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt; &lt;list&gt;                  &lt;POINT [m]&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;  1 288791. 9120747.   352 &lt;tibble [6 × 2]&gt; (288790.5 9120747)</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;  2 288819. 9120747.   704 &lt;tibble [6 × 2]&gt;   (288819 9120747)</span></span>
-<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;  3 288848. 9120747.  1056 &lt;tibble [6 × 2]&gt; (288847.5 9120747)</span></span>
-<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;  4 288876. 9120747.  1408 &lt;tibble [6 × 2]&gt;   (288876 9120747)</span></span>
-<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;  5 288905. 9120747.  1760 &lt;tibble [6 × 2]&gt; (288904.5 9120747)</span></span>
-<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;  6 288933. 9120747.  2112 &lt;tibble [6 × 2]&gt;   (288933 9120747)</span></span>
-<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;  7 288962. 9120747.  2464 &lt;tibble [6 × 2]&gt; (288961.5 9120747)</span></span>
-<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;  8 288990. 9120747.  2816 &lt;tibble [6 × 2]&gt;   (288990 9120747)</span></span>
-<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt;  9 289019. 9120747.  3168 &lt;tibble [6 × 2]&gt; (289018.5 9120747)</span></span>
-<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 10 289047. 9120747.  3520 &lt;tibble [6 × 2]&gt;   (289047 9120747)</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;          x        y    id ts              </span></span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt;      &lt;dbl&gt;    &lt;dbl&gt; &lt;int&gt; &lt;list&gt;          </span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;  1 288791. 9120747.   352 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt;  2 288819. 9120747.   704 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt;  3 288848. 9120747.  1056 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;  4 288876. 9120747.  1408 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-14"><a href="#cb8-14" tabindex="-1"></a><span class="co">#&gt;  5 288905. 9120747.  1760 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-15"><a href="#cb8-15" tabindex="-1"></a><span class="co">#&gt;  6 288933. 9120747.  2112 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-16"><a href="#cb8-16" tabindex="-1"></a><span class="co">#&gt;  7 288962. 9120747.  2464 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-17"><a href="#cb8-17" tabindex="-1"></a><span class="co">#&gt;  8 288990. 9120747.  2816 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-18"><a href="#cb8-18" tabindex="-1"></a><span class="co">#&gt;  9 289019. 9120747.  3168 &lt;tibble [6 × 2]&gt;</span></span>
+<span id="cb8-19"><a href="#cb8-19" tabindex="-1"></a><span class="co">#&gt; 10 289047. 9120747.  3520 &lt;tibble [6 × 2]&gt;</span></span>
 <span id="cb8-20"><a href="#cb8-20" tabindex="-1"></a><span class="co">#&gt; # ℹ 122,838 more rows</span></span></code></pre></div>
 <p>When the <code>dimensions</code> object is too complex for the
 <code>cubble</code> package to handle, a warning message will be
@@ -481,7 +481,7 @@ generated.</p>
 <span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  sftime<span class="sc">::</span><span class="fu">st_as_sftime</span>()</span>
 <span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>dt <span class="sc">|&gt;</span> <span class="fu">as_cubble</span>(<span class="at">key =</span> id, <span class="at">index =</span> date)</span>
 <span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.8321, -37.98, 145.0964, -37.6655], WGS 84</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
 <span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; # temporal: prcp [dbl], tmax [dbl], tmin [dbl], date [date]</span></span>
 <span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id            geometry  long   lat ts      </span></span>
 <span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;list&gt;  </span></span>
