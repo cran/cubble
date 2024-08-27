@@ -49,7 +49,7 @@ overflow: visible;
 </style>
 <style type="text/css" data-origin="pandoc">
 pre > code.sourceCode { white-space: pre; position: relative; }
-pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span { line-height: 1.25; }
 pre > code.sourceCode > span:empty { height: 1.2em; }
 .sourceCode { overflow: visible; }
 code.sourceCode > span { color: inherit; text-decoration: inherit; }
@@ -60,7 +60,7 @@ div.sourceCode { overflow: auto; }
 }
 @media print {
 pre > code.sourceCode { white-space: pre-wrap; }
-pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+pre > code.sourceCode > span { display: inline-block; text-indent: -5em; padding-left: 5em; }
 }
 pre.numberSource code
 { counter-reset: source-line 0; }
@@ -148,6 +148,7 @@ code span.wa { color: #60a0b0; font-weight: bold; font-style: italic; }
 div.csl-bib-body { }
 div.csl-entry {
 clear: both;
+margin-bottom: 0em;
 }
 .hanging div.csl-entry {
 margin-left:2em;
@@ -364,8 +365,7 @@ code > span.er { color: #a61717; background-color: #e3d2d2; }
 
 <div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="fu">library</span>(cubble)</span>
 <span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="fu">library</span>(tsibble)</span>
-<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(sf)</span>
-<span id="cb1-4"><a href="#cb1-4" tabindex="-1"></a><span class="co">#&gt; Warning: package &#39;sf&#39; was built under R version 4.3.2</span></span></code></pre></div>
+<span id="cb1-3"><a href="#cb1-3" tabindex="-1"></a><span class="fu">library</span>(sf)</span></code></pre></div>
 <p>Analysts often have their preferred spatial or temporal data
 structure that they prefer to use for spatio-temporal analysis. For
 example, the <code>tbl_ts</code> class from the tsibble package <span class="citation">(Wang, Cook, and Hyndman 2020)</span> is commonly used
@@ -398,34 +398,34 @@ the input will be carried over to the cubble object:</p>
 <span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="co">#&gt;  8 ASN00086038 2020-01-08     0  26.4  16.4</span></span>
 <span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a><span class="co">#&gt;  9 ASN00086038 2020-01-09     0  33.1  17.4</span></span>
 <span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a><span class="co">#&gt; 10 ASN00086038 2020-01-10     0  34    19.6</span></span>
-<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; # ℹ 20 more rows</span></span></code></pre></div>
-<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a><span class="fu">class</span>(ts_long)</span>
-<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;temporal_cubble_df&quot; &quot;cubble_df&quot;          &quot;tbl_ts&quot;            </span></span>
-<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl_df&quot;             &quot;tbl&quot;                &quot;data.frame&quot;</span></span></code></pre></div>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="co">#&gt; # ℹ 20 more rows</span></span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a><span class="fu">class</span>(ts_long)</span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co">#&gt; [1] &quot;temporal_cubble_df&quot; &quot;cubble_df&quot;          &quot;tbl_ts&quot;            </span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl_df&quot;             &quot;tbl&quot;                &quot;data.frame&quot;</span></span></code></pre></div>
 <p>The long cubble shows <code>[tsibble]</code> in the header to
 indicate the object also being in a <code>tbl_ts</code> class. Methods
 applies to the <code>tbl_ts</code> class can also be applied to the
 temporal cubble objects, for example, checking whether the data contain
 temporal gaps:</p>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>ts_long <span class="sc">|&gt;</span> <span class="fu">has_gaps</span>()</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a><span class="co">#&gt;   id          .gaps</span></span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;lgl&gt;</span></span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038 FALSE</span></span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077 FALSE</span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 FALSE</span></span></code></pre></div>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>ts_long <span class="sc">|&gt;</span> <span class="fu">has_gaps</span>()</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a><span class="co">#&gt; # A tibble: 3 × 2</span></span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a><span class="co">#&gt;   id          .gaps</span></span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;lgl&gt;</span></span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038 FALSE</span></span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077 FALSE</span></span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 FALSE</span></span></code></pre></div>
 <p>An existing cubble object can promote its temporal component to a
 tsibble object by applying <code>make_temporal_tsibble()</code>. The
 promoted cubble object (<code>ts_long2</code>) will be the same as the
 one created with a tsibble component initially
 (<code>ts_long</code>):</p>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>ts_long2 <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  stations, meteo, </span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date, <span class="at">coords =</span> <span class="fu">c</span>(long, lat)) <span class="sc">|&gt;</span> </span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>  <span class="fu">face_temporal</span>() <span class="sc">|&gt;</span> </span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a>  <span class="fu">make_temporal_tsibble</span>() </span>
-<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="fu">identical</span>(ts_long2, ts_long)</span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>ts_long2 <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  stations, meteo, </span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date, <span class="at">coords =</span> <span class="fu">c</span>(long, lat)) <span class="sc">|&gt;</span> </span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>  <span class="fu">face_temporal</span>() <span class="sc">|&gt;</span> </span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a>  <span class="fu">make_temporal_tsibble</span>() </span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">identical</span>(ts_long2, ts_long)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [1] TRUE</span></span></code></pre></div>
 </div>
 <div id="a-spatial-component-with-sf" class="section level1">
 <h1>A spatial component with sf</h1>
@@ -436,52 +436,51 @@ polygons or multipolygons and the <code>coords</code> argument will be
 calculated as the centroids of the (multi)polygons. The
 <code>[sf]</code> print in the cubble header suggest an spatial
 component being also a sf object:</p>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>(sf_nested <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>  <span class="at">spatial =</span> stations_sf, <span class="at">temporal =</span> meteo, </span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date))</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
-<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
-<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  78.4 essen…  95866  145. -37.7 (144.9066 -37.7276) &lt;tibble&gt;</span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  12.1 moora…  94870  145. -38.0   (145.0964 -37.98) &lt;tibble&gt;</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 113.  melbo…  94866  145. -37.7 (144.8321 -37.6655) &lt;tibble&gt;</span></span></code></pre></div>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a><span class="fu">class</span>(sf_nested)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a><span class="co">#&gt; [1] &quot;spatial_cubble_df&quot; &quot;cubble_df&quot;         &quot;sf&quot;               </span></span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl_df&quot;            &quot;tbl&quot;               &quot;data.frame&quot;</span></span></code></pre></div>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>(sf_nested <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>  <span class="at">spatial =</span> stations_sf, <span class="at">temporal =</span> meteo, </span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date))</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  78.4 essen…  95866  145. -37.7 (144.9066 -37.7276) &lt;tibble&gt;</span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  12.1 moora…  94870  145. -38.0   (145.0964 -37.98) &lt;tibble&gt;</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 113.  melbo…  94866  145. -37.7 (144.8321 -37.6655) &lt;tibble&gt;</span></span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="fu">class</span>(sf_nested)</span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt; [1] &quot;spatial_cubble_df&quot; &quot;cubble_df&quot;         &quot;sf&quot;               </span></span>
+<span id="cb5-14"><a href="#cb5-14" tabindex="-1"></a><span class="co">#&gt; [4] &quot;tbl_df&quot;            &quot;tbl&quot;               &quot;data.frame&quot;</span></span></code></pre></div>
 <p>The following code shows how to perform coordinate transformation
 with <code>st_transform</code> on a cubble object:</p>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>sf_nested <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="st">&quot;EPSG:3857&quot;</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; Warning: st_crs&lt;- : replacing crs does not reproject data; use st_transform for</span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; that</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; # spatial:  [16122635.62, -4576600.87, 16152057.36, -4532279.36], WGS 84</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
-<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [°]&gt; &lt;list&gt;  </span></span>
-<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  78.4 essen…  95866  145. -37.7 (16130929 -4541016) &lt;tibble&gt;</span></span>
-<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  12.1 moora…  94870  145. -38.0 (16152057 -4576601) &lt;tibble&gt;</span></span>
-<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 113.  melbo…  94866  145. -37.7 (16122636 -4532279) &lt;tibble&gt;</span></span></code></pre></div>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>sf_nested <span class="sc">|&gt;</span> sf<span class="sc">::</span><span class="fu">st_transform</span>(<span class="at">crs =</span> <span class="st">&quot;EPSG:3857&quot;</span>)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a><span class="co">#&gt; # spatial:  [16122635.62, -4576600.87, 16152057.36, -4532279.36], WGS 84 /</span></span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a><span class="co">#&gt; #   Pseudo-Mercator</span></span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt;   id           elev name   wmo_id  long   lat            geometry ts      </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt;         &lt;POINT [m]&gt; &lt;list&gt;  </span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  78.4 essen…  95866  145. -37.7 (16130929 -4541016) &lt;tibble&gt;</span></span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  12.1 moora…  94870  145. -38.0 (16152057 -4576601) &lt;tibble&gt;</span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282 113.  melbo…  94866  145. -37.7 (16122636 -4532279) &lt;tibble&gt;</span></span></code></pre></div>
 <p>The counterpart to promote the spatial component in an existing
 cubble to be an sf object is <code>make_spatial_sf()</code>:</p>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>(sf_nested2 <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>  stations, meteo, </span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date, <span class="at">coords =</span> <span class="fu">c</span>(long, lat)) <span class="sc">|&gt;</span> </span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  <span class="fu">make_spatial_sf</span>())</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; CRS missing: using OGC:CRS84 (WGS84) as default</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt;   id           long   lat  elev name   wmo_id ts                  geometry</span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;list&gt;           &lt;POINT [°]&gt;</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  145. -37.7  78.4 essen…  95866 &lt;tibble&gt; (144.9066 -37.7276)</span></span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  145. -38.0  12.1 moora…  94870 &lt;tibble&gt;   (145.0964 -37.98)</span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282  145. -37.7 113.  melbo…  94866 &lt;tibble&gt; (144.8321 -37.6655)</span></span></code></pre></div>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>(sf_nested2 <span class="ot">&lt;-</span> <span class="fu">make_cubble</span>(</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>  stations, meteo, </span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>  <span class="at">key =</span> id, <span class="at">index =</span> date, <span class="at">coords =</span> <span class="fu">c</span>(long, lat)) <span class="sc">|&gt;</span> </span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>  <span class="fu">make_spatial_sf</span>())</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="co">#&gt; CRS missing: using OGC:CRS84 (WGS84) as default</span></span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; # cubble:   key: id [3], index: date, nested form, [sf]</span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt; # spatial:  [144.83, -37.98, 145.1, -37.67], WGS 84</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="co">#&gt; # temporal: date [date], prcp [dbl], tmax [dbl], tmin [dbl]</span></span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt;   id           long   lat  elev name   wmo_id ts                  geometry</span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;   &lt;chr&gt;       &lt;dbl&gt; &lt;dbl&gt; &lt;dbl&gt; &lt;chr&gt;   &lt;dbl&gt; &lt;list&gt;           &lt;POINT [°]&gt;</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="co">#&gt; 1 ASN00086038  145. -37.7  78.4 essen…  95866 &lt;tibble&gt; (144.9066 -37.7276)</span></span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; 2 ASN00086077  145. -38.0  12.1 moora…  94870 &lt;tibble&gt;   (145.0964 -37.98)</span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt; 3 ASN00086282  145. -37.7 113.  melbo…  94866 &lt;tibble&gt; (144.8321 -37.6655)</span></span></code></pre></div>
 </div>
 <div id="reference" class="section level1 unnumbered">
 <h1 class="unnumbered">Reference</h1>
-<div id="refs" class="references csl-bib-body hanging-indent">
+<div id="refs" class="references csl-bib-body hanging-indent" entry-spacing="0">
 <div id="ref-sf" class="csl-entry">
 Pebesma, Edzer. 2018. <span>“<span class="nocase">Simple Features for R:
 Standardized Support for Spatial Vector Data</span>.”</span>
